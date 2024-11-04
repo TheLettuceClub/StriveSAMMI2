@@ -1,8 +1,6 @@
-# Strive Frame Viewer
+# Strive SAMMI integration
 
-This is a fork of Procdox's Framebar viewer mod that allows you to see a SF6 style frame data display in training/replay mode (and only training/replay mode). There is no gamebanan link right now
-
-![image info](./docs/readme_banner.png)
+This is a fork of Procdox's Framebar viewer mod that should send game state information to SAMMI similarly to super-continent's excellent GGXRD-mod. This is very much a work in progress.
 
 ## Manual Installation
 Download the `Standalone.zip` file from releases, and extract the contents into the win64 directory of GGST. If you are upgrading, delete the existing "cache" folder as it can cause issues if it is out of date.
@@ -11,41 +9,9 @@ e.g. ```C:\Program Files (x86)\Steam\steamapps\common\GUILTY GEAR STRIVE\RED\Bin
 
 This does not require any pak mods installed via unverum.
 
-## Unverum Installation
-Download the [Unverum Hotpatch](https://github.com/Sevoii/Unverum/releases/tag/latest) and replace `Unverum.exe` and `Unverum.dll` (of your old installtion) to the new one. Then download the `Unverum.zip` file from releases, and extract contents into Guilty Gear -Strive- directory of Unverum (manual download since no gamebana link yet). Finally, run the game like how you would with Unverum normally.
-
-This requires my hotfix version of Unverum.
-
-## The view explained
-Two bars along the bottom of the screen display a series of frames. The top bar corresponds to player one, the bottom bar to player two. The color of these frames indicates different states that the respective player is in.
-- <span style="color:gray">Gray</span>: the player is idle 
-- <span style="color:blue">Blue</span>: the player is block stunned
-- <span style="color:green">Green</span>: the player is hit stunned
-- <span style="color:yellow">Yellow</span>: the player is in an animation
-- <span style="color:red">Red</span>: the player has active hurtboxes
-- <span style="color:orange">Orange</span>: the player is in a recovery animation
-- <span style="color:red">Red Outline</span>: the player has a projectile with active hurtboxes
-
-If the training mode reset is triggered or both players don't input a move for 20 frames, the combo is considered "ended" and the display will reset on the next input move.
-
-Additionally, there are some space saving features. If a segment of frames is longer than 5 frames, the total length will be displayed as text. If an animation is in hitstun or counterhit stun, where animation is freezed, the frames will be dropped to save space. If both players have been in the same state for more than 10 frames, the segments will be "truncated" to save space. 
-
-## Controls
-- F1: Toggle Frame bar
-- F2: Toggle Hitboxes
-- F3: Pause/Resume the game
-- F4: Advance the game by one frame (if paused)
-- F5: Open mod menu
-
 ## TODO:
-- Fix Leo backstance move lengths
-- Add data about largest gap for each player
-- Some command throws don't show active frames
-- RWA and BWA aren't counting for frames
-- Add POT armor frame visualizer
-- Add cancellable recovery frame visualizer
-- Add color key to menu
-- Add segment break indicator
+- Get it to compile
+- Everything else
 
 ## Disabling
 The simplest way to disable this and any other ue4ss mods is to delete or remove the ```dwmapi.dll``` file from the game files. If this file is not present, the rest of the mod will not be loaded when the game is launched.
