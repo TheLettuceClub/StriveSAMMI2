@@ -25,7 +25,9 @@
                 "${workspaceFolder}/RE-UE4SS/deps/first/Unreal/include/**",
                 "${workspaceFolder}/RE-UE4SS/deps/first/Unreal/generated_include",
                 "${workspaceFolder}/RE-UE4SS/UE4SS/include/**",
-                "${workspaceFolder}/RE-UE4SS/UE4SS/include/Mod/"
+                "${workspaceFolder}/RE-UE4SS/UE4SS/include/Mod/",
+                "${workspaceFolder}/RE-UE4SS/deps/first/String/include",
+                "${workspaceFolder}/Intermediates/.packages/**"
             ],
             "defines": [
                 "_DEBUG",

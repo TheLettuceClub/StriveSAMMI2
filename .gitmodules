@@ -1,5 +1,5 @@
-[submodule "StriveHitboxes/minhook"]
-	path = StriveHitboxes/minhook
+[submodule "SAMMI-Integration/minhook"]
+	path = SAMMI-Integration/minhook
 	url = https://github.com/TsudaKageyu/minhook.git
 [submodule "RE-UE4SS"]
 	path = RE-UE4SS

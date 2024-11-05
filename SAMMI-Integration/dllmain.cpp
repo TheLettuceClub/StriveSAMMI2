@@ -25,7 +25,9 @@ using namespace std::chrono_literals;
 /* Definitions */
 
 // Classes
-class UREDGameCommon : public Unreal::UObject {};
+class UREDGameCommon : public Unreal::UObject
+{
+};
 
 // Functions
 using funcAHUDPostRender_t = void (*)(void *);
@@ -41,7 +43,8 @@ void hook_MatchStart(AREDGameState_Battle *);
 void hook_UpdateBattle(AREDGameState_Battle *, float);
 
 // Enums
-enum GAME_MODE : int32_t {
+enum GAME_MODE : int32_t
+{
   GAME_MODE_DEBUG_BATTLE = 0x0,
   GAME_MODE_ADVERTISE = 0x1,
   GAME_MODE_MAINTENANCEVS = 0x2,
@@ -74,7 +77,8 @@ enum GAME_MODE : int32_t {
 
 /* Utilities */
 
-const void *vtable_hook(const void **vtable, const int index, const void *hook) {
+const void *vtable_hook(const void **vtable, const int index, const void *hook)
+{
   DWORD old_protect;
   VirtualProtect(&vtable[index], sizeof(void *), PAGE_READWRITE, &old_protect);
   const auto *orig = vtable[index];
@@ -96,39 +100,49 @@ funcUpdateBattle_t orig_UpdateBattle;
 UE4SSProgram *Program;
 
 // Trackers
-class StateMgr {
+class StateMgr
+{
   UREDGameCommon *GameCommon = nullptr;
   int last_mode = GAME_MODE_DEBUG_BATTLE;
   bool in_allowed_mode = false;
   std::vector<int> allowed_modes = {GAME_MODE_TRAINING, GAME_MODE_REPLAY, GAME_MODE_MISSION, GAME_MODE_UNDECIDED};
 
 public:
-  bool checkMode() {
-    if (!GameCommon) {
+  bool checkMode()
+  {
+    if (!GameCommon)
+    {
       GameCommon = reinterpret_cast<UREDGameCommon *>(UObjectGlobals::FindFirstOf(FName(STR("REDGameCommon"))));
     }
-    if (!GameCommon) return false;
-    if (int current_mode = orig_GetGameMode(GameCommon); current_mode != last_mode) {
-//       RC::Output::send<LogLevel::Warning>(STR("Mode Change: {}\n"), current_mode);
+    if (!GameCommon)
+      return false;
+    if (int current_mode = orig_GetGameMode(GameCommon); current_mode != last_mode)
+    {
+      //       RC::Output::send<LogLevel::Warning>(STR("Mode Change: {}\n"), current_mode);
       last_mode = current_mode;
       in_allowed_mode = (std::find(allowed_modes.begin(), allowed_modes.end(), current_mode) != allowed_modes.end());
     }
-    
+
     return in_allowed_mode;
   }
-  void checkRound() {
+  void checkRound()
+  {
     resetting = false;
     auto *events = asw_events::get();
     auto count = events->event_count;
-    if (count > 10) count = 10;
-    for (unsigned int idx = 0; idx < count; ++idx) {
+    if (count > 10)
+      count = 10;
+    for (unsigned int idx = 0; idx < count; ++idx)
+    {
       auto e_type = events->events[idx].type;
       // if(e_type < 41) RC::Output::send<LogLevel::Warning>(STR("Event {}: {}\n"), idx, (int)e_type);
-      if (e_type == BOM_EVENT_RESET || e_type == BOM_EVENT_DECISION) {
+      if (e_type == BOM_EVENT_RESET || e_type == BOM_EVENT_DECISION)
+      {
         resetting = true;
         roundActive = false;
       }
-      if (e_type == BOM_EVENT_BATTLE_START) {
+      if (e_type == BOM_EVENT_BATTLE_START)
+      {
         resetting = true;
         roundActive = true;
       };
@@ -141,7 +155,8 @@ public:
 
 } game_state;
 
-class Keybinds {
+class Keybinds
+{
 public:
   static const int BUTTON_COUNT = 9;
 
@@ -158,116 +173,148 @@ public:
 
   int buttons[BUTTON_COUNT] = {TOGGLE_FRAMEBAR_BUTTON, TOGGLE_HITBOX_BUTTON, PAUSE_BUTTON, ADVANCE_BUTTON, TOGGLE_MENU_BUTTON, MENU_UP_BUTTON, MENU_DOWN_BUTTON, MENU_LEFT_BUTTON, MENU_RIGHT_BUTTON};
 
-  int getButtonIndex(int input) {
-    for (int i = 0; i < BUTTON_COUNT; i++) {
-      if (buttons[i] == input) {
+  int getButtonIndex(int input)
+  {
+    for (int i = 0; i < BUTTON_COUNT; i++)
+    {
+      if (buttons[i] == input)
+      {
         return i;
       }
     }
     return -1;
   }
 
-  bool setButtonState(int input, bool val) {
+  bool setButtonState(int input, bool val)
+  {
     int index = getButtonIndex(input);
-    if (index != -1) {
+    if (index != -1)
+    {
       buttonStates[index] = val;
       return true;
-    } else {
+    }
+    else
+    {
       return false;
     }
   }
 
-  bool getButtonState(int input) {
+  bool getButtonState(int input)
+  {
     int index = getButtonIndex(input);
-    if (index != -1) {
+    if (index != -1)
+    {
       return buttonStates[index];
     }
     return false;
   }
 
-  void resetButton(int input) {
+  void resetButton(int input)
+  {
     int index = getButtonIndex(input);
-    if (index != -1) {
+    if (index != -1)
+    {
       buttonStates[index] = false;
     }
   }
 
-  void resetButtons() {
-    for (int i = 0; i < BUTTON_COUNT; i++) {
+  void resetButtons()
+  {
+    for (int i = 0; i < BUTTON_COUNT; i++)
+    {
       buttonStates[i] = false;
     }
   }
 
-  void loadButtons() {
-    for (int i = 0; i < BUTTON_COUNT; i++) {
+  void loadButtons()
+  {
+    for (int i = 0; i < BUTTON_COUNT; i++)
+    {
       BindWatcherI::addToFilter(buttons[i]);
     }
   }
 
-  void checkBinds(bool await = false) {
+  void checkBinds(bool await = false)
+  {
     auto inputs = BindWatcherI::getInputs(await);
-    for (const auto &input : inputs) {
+    for (const auto &input : inputs)
+    {
       setButtonState(input, true);
     }
   }
+
 private:
   bool buttonStates[BUTTON_COUNT] = {};
 } keybindings;
 
-class PauseManager {
+class PauseManager
+{
   bool isPaused = false;
   bool shouldAdvance = false;
 
 public:
-  bool advancing() const {
+  bool advancing() const
+  {
     return isPaused && shouldAdvance;
   }
 
-  bool cinematicShouldAdvance() {
+  bool cinematicShouldAdvance()
+  {
     return isPaused && !shouldAdvance;
   }
 
-  void updateBinds() {
-    if (keybindings.getButtonState(keybindings.PAUSE_BUTTON)) {
+  void updateBinds()
+  {
+    if (keybindings.getButtonState(keybindings.PAUSE_BUTTON))
+    {
       keybindings.resetButton(keybindings.PAUSE_BUTTON);
       isPaused = !isPaused;
     }
 
-    if (keybindings.getButtonState(keybindings.ADVANCE_BUTTON)) {
+    if (keybindings.getButtonState(keybindings.ADVANCE_BUTTON))
+    {
       keybindings.resetButton(keybindings.ADVANCE_BUTTON);
       shouldAdvance = true;
     }
   }
 
-  void checkPause() {
-    if (advancing()) {
+  void checkPause()
+  {
+    if (advancing())
+    {
       shouldAdvance = false;
       return;
     }
 
     updateBinds();
 
-    if (ModMenu::instance().pauseType() == 0) {
-      while (isPaused && !shouldAdvance) {
+    if (ModMenu::instance().pauseType() == 0)
+    {
+      while (isPaused && !shouldAdvance)
+      {
         keybindings.checkBinds(true);
         updateBinds();
       }
     }
   }
 
-  void reset() {
+  void reset()
+  {
     isPaused = false;
     shouldAdvance = false;
   }
 } pause_manager;
 
-class UeTracker {
+class UeTracker
+{
   Unreal::UObject *worldsets_actor = nullptr;
   Unreal::FProperty *paused_prop = nullptr;
   bool renderingHooked = false;
 
-  void hookFuncs() {
-    if (renderingHooked) return;
+  void hookFuncs()
+  {
+    if (renderingHooked)
+      return;
     renderingHooked = true;
 
     /* HUD Rendering vtable hook*/
@@ -277,38 +324,47 @@ class UeTracker {
     const auto **ACamera_vtable = (const void **)get_rip_relative(sigscan::get().scan("\x48\x8D\x05\x00\x00\x00\x00\x48\x8d\x8f\x20\x28\x00\x00", "xxx????xxxxxxx") + 3);
     orig_ACamUpdateCamera = (funcACamUpdateCamera_t)vtable_hook(ACamera_vtable, 208, hook_ACamUpdateCamera);
   }
-  void findProp() {
+  void findProp()
+  {
     static auto input_class_name = Unreal::FName(STR("REDPlayerController_Battle"), Unreal::FNAME_Add);
     static auto getworldsets_func_name = Unreal::FName(STR("K2_GetWorldSettings"), Unreal::FNAME_Add);
 
     auto *input_actor = static_cast<Unreal::AActor *>(UObjectGlobals::FindFirstOf(input_class_name));
-    if (!input_actor) return;
+    if (!input_actor)
+      return;
 
     auto *world_actor = input_actor->GetWorld();
-    if (!world_actor) return;
+    if (!world_actor)
+      return;
 
     auto *getworldsets_func = world_actor->GetFunctionByNameInChain(getworldsets_func_name);
-    if (!getworldsets_func) return;
+    if (!getworldsets_func)
+      return;
 
     world_actor->ProcessEvent(getworldsets_func, &worldsets_actor);
-    if (!worldsets_actor) return;
+    if (!worldsets_actor)
+      return;
 
     paused_prop = worldsets_actor->GetPropertyByName(STR("PauserPlayerState"));
   }
 
 public:
-  void reset() {
+  void reset()
+  {
     worldsets_actor = nullptr;
     paused_prop = nullptr;
   }
-  void setup() {
+  void setup()
+  {
     reset();
     hookFuncs();
     findProp();
     return;
   }
-  bool isUePaused() {
-    if (!paused_prop) return false;
+  bool isUePaused()
+  {
+    if (!paused_prop)
+      return false;
     Unreal::AActor **val = static_cast<Unreal::AActor **>(paused_prop->ContainerPtrToValuePtr<void>(worldsets_actor));
     return (bool)val ? ((bool)*val) : false;
   }
@@ -318,7 +374,8 @@ public:
 
 FrameBar the_bar;
 
-void hook_MatchStart(AREDGameState_Battle *GameState) {
+void hook_MatchStart(AREDGameState_Battle *GameState)
+{
   game_state.matchStarted = true;
   game_state.roundActive = false;
   pause_manager.reset();
@@ -326,44 +383,57 @@ void hook_MatchStart(AREDGameState_Battle *GameState) {
 
   orig_MatchStart(GameState);
 }
-void hook_AHUDPostRender(void *hud) {
-  if (!game_state.checkMode()) {
+void hook_AHUDPostRender(void *hud)
+{
+  if (!game_state.checkMode())
+  {
     orig_AHUDPostRender(hud);
     return;
   }
 
-  if (DrawTool::instance().update(hud)) {
-    auto& menu = ModMenu::instance();
+  if (DrawTool::instance().update(hud))
+  {
+    auto &menu = ModMenu::instance();
     menu.draw();
-    if(menu.hitboxEnabled()) drawAllBoxes();
-    if(menu.barEnabled()) the_bar.draw();
+    if (menu.hitboxEnabled())
+      drawAllBoxes();
+    if (menu.barEnabled())
+      the_bar.draw();
   }
 
-  if (pause_manager.advancing()) return;
+  if (pause_manager.advancing())
+    return;
   orig_AHUDPostRender(hud);
 }
-void hook_ACamUpdateCamera(void *cam, float DeltaTime) {
-  if (!game_state.checkMode()) {
+void hook_ACamUpdateCamera(void *cam, float DeltaTime)
+{
+  if (!game_state.checkMode())
+  {
     orig_ACamUpdateCamera(cam, DeltaTime);
     return;
   }
 
-  if (pause_manager.advancing()) return;
+  if (pause_manager.advancing())
+    return;
   orig_ACamUpdateCamera(cam, DeltaTime);
 }
-void hook_UpdateBattle(AREDGameState_Battle *GameState, float DeltaTime) {
-  if (!game_state.checkMode()) {
+void hook_UpdateBattle(AREDGameState_Battle *GameState, float DeltaTime)
+{
+  if (!game_state.checkMode())
+  {
     orig_UpdateBattle(GameState, DeltaTime);
     return;
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds (ModMenu::instance().delayAmount()));
+  std::this_thread::sleep_for(std::chrono::milliseconds(ModMenu::instance().delayAmount()));
 
   keybindings.checkBinds(false);
   pause_manager.checkPause();
 
-  if (ModMenu::instance().pauseType() == 0 && pause_manager.advancing()) return;
-  if (ModMenu::instance().pauseType() == 1 && pause_manager.cinematicShouldAdvance()) return;
+  if (ModMenu::instance().pauseType() == 0 && pause_manager.advancing())
+    return;
+  if (ModMenu::instance().pauseType() == 1 && pause_manager.cinematicShouldAdvance())
+    return;
 
   ModMenu::instance().update(PressedKeys{
       keybindings.getButtonState(keybindings.TOGGLE_FRAMEBAR_BUTTON),
@@ -372,36 +442,40 @@ void hook_UpdateBattle(AREDGameState_Battle *GameState, float DeltaTime) {
       keybindings.getButtonState(keybindings.MENU_UP_BUTTON),
       keybindings.getButtonState(keybindings.MENU_DOWN_BUTTON),
       keybindings.getButtonState(keybindings.MENU_RIGHT_BUTTON),
-      keybindings.getButtonState(keybindings.MENU_LEFT_BUTTON)
-  });
+      keybindings.getButtonState(keybindings.MENU_LEFT_BUTTON)});
   keybindings.resetButtons();
 
   game_state.checkRound();
-  if (game_state.resetting) {
+  if (game_state.resetting)
+  {
     the_bar.reset();
   }
 
   orig_UpdateBattle(GameState, DeltaTime);
 
-  if (game_state.matchStarted) {
+  if (game_state.matchStarted)
+  {
     game_state.matchStarted = false;
     DrawTool::instance().initialize();
     tracker.setup();
   }
 
-  if (!tracker.isUePaused() && game_state.roundActive) {
+  if (!tracker.isUePaused() && game_state.roundActive)
+  {
     the_bar.addFrame();
   }
 }
 
 /* Mod Definition */
-class StriveFrameData : public CppUserModBase {
+class StriveFrameData : public CppUserModBase
+{
 public:
   PLH::x64Detour *UpdateBattle_Detour;
   PLH::x64Detour *MatchStart_Detour;
 
   StriveFrameData()
-  : CppUserModBase() {
+      : CppUserModBase()
+  {
     ModName = STR("SAMMI-Integration");
     ModVersion = STR("0.01");
     ModDescription = STR("A tool to export game data to SAMMI.");
@@ -419,7 +493,8 @@ public:
 
   auto on_update() -> void override {}
 
-  auto on_unreal_init() -> void override {
+  auto on_unreal_init() -> void override
+  {
     Output::send<LogLevel::Verbose>(STR("Strive Frame Viewer (SAMMI) says: unreal started!\n"));
     Program = &UE4SSProgram::get_program();
 
@@ -440,12 +515,15 @@ public:
   }
 };
 
-extern "C" {
-STRIVEFRAMEDATA_API CppUserModBase *start_mod() {
-  return new StriveFrameData();
-}
+extern "C"
+{
+  STRIVEFRAMEDATA_API CppUserModBase *start_mod()
+  {
+    return new StriveFrameData();
+  }
 
-STRIVEFRAMEDATA_API void uninstall_mod(CppUserModBase *mod) {
-  delete mod;
-}
+  STRIVEFRAMEDATA_API void uninstall_mod(CppUserModBase *mod)
+  {
+    delete mod;
+  }
 }
