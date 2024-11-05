@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/StriveFrameData/",
+                "${workspaceFolder}/SAMMI-Integration/",
                 "${workspaceFolder}/RE-UE4SS/UE4SS/include",
                 "${workspaceFolder}/RE-UE4SS/deps/first/ArgsParser/include",
                 "${workspaceFolder}/RE-UE4SS/deps/first/ASMHelper/include",
