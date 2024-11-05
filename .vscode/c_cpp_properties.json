@@ -27,7 +27,8 @@
                 "${workspaceFolder}/RE-UE4SS/UE4SS/include/**",
                 "${workspaceFolder}/RE-UE4SS/UE4SS/include/Mod/",
                 "${workspaceFolder}/RE-UE4SS/deps/first/String/include",
-                "${workspaceFolder}/Intermediates/.packages/**"
+                "${workspaceFolder}/Intermediates/.packages/**",
+                "C:/Users/Gamer/AppData/Local/.xmake/packages/**"
             ],
             "defines": [
                 "_DEBUG",

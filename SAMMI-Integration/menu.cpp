@@ -2,11 +2,13 @@
 #include <fstream>
 #include <string>
 
-class RedInputChecker {
+class RedInputChecker
+{
   unsigned short novel_inputs;
 
 public:
-  enum InputFlag {
+  enum InputFlag
+  {
     IF_Up = 0x1,
     IF_Down = 0x2,
     IF_Left = 0x4,
@@ -18,7 +20,8 @@ public:
     IF_Dust = 0x100,
     IF_ANY = 0x1FF
   };
-  RedInputChecker(asw_inputs &inputs) {
+  RedInputChecker(asw_inputs &inputs)
+  {
     novel_inputs = inputs.m_CurRecFlg & (~inputs.m_PreRecFlg);
   }
   bool checkInput(InputFlag flag) const { return novel_inputs & flag; }
@@ -41,35 +44,41 @@ public:
     if(checkInput(IF_Dust)) return ICON_BUTTON_D_LOC;
     return ICON_NULL_LOC;
   }*/
-  void debug() const {
+  void debug() const
+  {
     RC::Output::send<LogLevel::Warning>(STR("Input: {}\n"), novel_inputs);
   }
 };
 
 // Color Stuff
 float OneOver255 = 1.0f / 255.0f;
-float sRGBToLinear(int pc) {
+float sRGBToLinear(int pc)
+{
   float c = pc * OneOver255;
   return c > 0.04045 ? pow(c * (1.0 / 1.055) + 0.0521327, 2.4) : c * (1.0 / 12.92);
 }
 
-FLinearColor convSRGB(int r, int g, int b, int a) {
+FLinearColor convSRGB(int r, int g, int b, int a)
+{
   return FLinearColor{sRGBToLinear(r), sRGBToLinear(g), sRGBToLinear(b), a * OneOver255};
 }
 
-struct OptionData {
+struct OptionData
+{
   const wchar_t *title;
   size_t count;
   std::array<const wchar_t *, 5> values;
 };
 
-struct SettingsEntry {
+struct SettingsEntry
+{
   const OptionData display;
   const std::string id_;
   size_t value;
 };
 
-namespace Settings {
+namespace Settings
+{
   SettingsEntry FRAMEBAR = SettingsEntry{
       OptionData{
           L"Frame Bar:", 2, {L"<  Disabled  >", L"<  Enabled   >"}},
@@ -110,8 +119,7 @@ namespace Settings {
   SettingsEntry CROSSUP_ENABABLED = SettingsEntry{
       OptionData{L"Show Crossup: ", 2, {L"<  Disabled  >", L"<  Enabled   >"}},
       "crossup_enabled",
-      0
-  };
+      0};
 
   std::array<SettingsEntry *, 9> settings = {
       &FRAMEBAR,
@@ -133,9 +141,12 @@ namespace Settings {
   size_t FRAMEBAR_INDEX = 0;
   size_t HITBOX_INDEX = 1;
 
-  int indexById(const std::string &id_) {
-    for (int i = 0; i < settings.size(); i++) {
-      if (id_ == settings[i]->id_) {
+  int indexById(const std::string &id_)
+  {
+    for (int i = 0; i < settings.size(); i++)
+    {
+      if (id_ == settings[i]->id_)
+      {
         return i;
       }
     }
@@ -143,30 +154,38 @@ namespace Settings {
     return -1;
   }
 
-  void readConfig() {
+  void readConfig()
+  {
     std::ifstream configFile(CONFIG_PATH);
 
-    if (!configFile) {
+    if (!configFile)
+    {
       return;
     }
 
     std::string line;
-    while (std::getline(configFile, line)) {
+    while (std::getline(configFile, line))
+    {
       size_t pos = line.find('=');
-      if (pos == std::string::npos) continue;
+      if (pos == std::string::npos)
+        continue;
 
       std::string key = line.substr(0, pos);
       int val;
 
-      try {
+      try
+      {
         val = std::stoi(line.substr(pos + 1));
-      } catch (...) {
+      }
+      catch (...)
+      {
         //        RC::Output::send<LogLevel::Verbose>(STR("Could not find {}\n"), line);
         continue;
       }
 
       int index = indexById(key);
-      if (index == -1) {
+      if (index == -1)
+      {
         //        RC::Output::send<LogLevel::Verbose>(STR("Could not find {}\n"), line);
         continue;
       }
@@ -177,15 +196,18 @@ namespace Settings {
     configFile.close();
   }
 
-  void saveConfig() {
+  void saveConfig()
+  {
     std::ofstream configFile(CONFIG_PATH);
 
-    if (!configFile) {
+    if (!configFile)
+    {
       RC::Output::send<LogLevel::Error>(STR("Unable to save config file\n"));
       return;
     }
 
-    for (auto &entry : settings) {
+    for (auto &entry : settings)
+    {
       configFile << entry->id_ << "=" << entry->value << "\n";
     }
 
@@ -194,21 +216,27 @@ namespace Settings {
   }
 }
 
-namespace {
+namespace
+{
   size_t OPTION_COUNT = Settings::settings.size();
 
-  int buildTitleWidth() {
+  int buildTitleWidth()
+  {
     int max_width = 0;
-    for (const auto &entry : Settings::settings) {
+    for (const auto &entry : Settings::settings)
+    {
       max_width = std::wstring_view(entry->display.title).size();
     }
     return max_width;
   }
 
-  int buildValueWidth() {
+  int buildValueWidth()
+  {
     int max_width = 0;
-    for (const auto &entry : Settings::settings) {
-      for (size_t idx = 0; idx < entry->display.count; idx++) {
+    for (const auto &entry : Settings::settings)
+    {
+      for (size_t idx = 0; idx < entry->display.count; idx++)
+      {
         max_width = std::wstring_view(entry->display.values[idx]).size();
       }
     }
@@ -291,57 +319,77 @@ namespace {
   };
 }
 
-size_t rotateVal(size_t val, bool positive, size_t max) {
-  if (positive) {
+size_t rotateVal(size_t val, bool positive, size_t max)
+{
+  if (positive)
+  {
     return (val + 1) % max;
-  } else if (val == 0) {
+  }
+  else if (val == 0)
+  {
     return max - 1;
-  } else {
+  }
+  else
+  {
     return val - 1;
   }
 }
 
 // TODO later: maybe move this somewhere else?
 // TODO later: maybe instead of idx do SettingsEntry entry
-void ModMenu::changeSetting(size_t idx, bool right) {
+void ModMenu::changeSetting(size_t idx, bool right)
+{
   auto &setting = Settings::settings[idx];
   setting->value = rotateVal(setting->value, right, setting->display.count);
 
   Settings::saveConfig();
 }
 
-ModMenu &ModMenu::instance() {
+ModMenu &ModMenu::instance()
+{
   static ModMenu me;
   return me;
 }
 
 ModMenu::~ModMenu() = default;
 ModMenu::ModMenu()
-: tool(CENTER_X_RATIO, CENTER_Y_RATIO) {
+    : tool(CENTER_X_RATIO, CENTER_Y_RATIO)
+{
   Settings::readConfig();
 }
 
-void ModMenu::update(PressedKeys data) {
-  if (data.toggle_framebar) changeSetting(Settings::FRAMEBAR_INDEX);
-  if (data.toggle_hitbox) changeSetting(Settings::HITBOX_INDEX);
-  if (data.toggle_menu) is_showing = !is_showing;
+void ModMenu::update(PressedKeys data)
+{
+  if (data.toggle_framebar)
+    changeSetting(Settings::FRAMEBAR_INDEX);
+  if (data.toggle_hitbox)
+    changeSetting(Settings::HITBOX_INDEX);
+  if (data.toggle_menu)
+    is_showing = !is_showing;
 
-  if (!is_showing) return;
+  if (!is_showing)
+    return;
 
   // get button inputs and update cursor
-//  auto checker = RedInputChecker(asw_engine::get()->inputs[0]);
-//  if (checker.checkInput(RedInputChecker::IF_Up)) cursor_position = rotateVal(cursor_position, false, OPTION_COUNT);
-//  if (checker.checkInput(RedInputChecker::IF_Down)) cursor_position = rotateVal(cursor_position, true, OPTION_COUNT);
-//  if (checker.checkInput(RedInputChecker::IF_Left)) changeSetting(cursor_position, false);
-//  if (checker.checkInput(RedInputChecker::IF_Right)) changeSetting(cursor_position, true);
-  if (data.go_up) cursor_position = rotateVal(cursor_position, false, OPTION_COUNT);
-  if (data.go_down) cursor_position = rotateVal(cursor_position, true, OPTION_COUNT);
-  if (data.rotate_left) changeSetting(cursor_position, false);
-  if (data.rotate_right) changeSetting(cursor_position, true);
+  //  auto checker = RedInputChecker(asw_engine::get()->inputs[0]);
+  //  if (checker.checkInput(RedInputChecker::IF_Up)) cursor_position = rotateVal(cursor_position, false, OPTION_COUNT);
+  //  if (checker.checkInput(RedInputChecker::IF_Down)) cursor_position = rotateVal(cursor_position, true, OPTION_COUNT);
+  //  if (checker.checkInput(RedInputChecker::IF_Left)) changeSetting(cursor_position, false);
+  //  if (checker.checkInput(RedInputChecker::IF_Right)) changeSetting(cursor_position, true);
+  if (data.go_up)
+    cursor_position = rotateVal(cursor_position, false, OPTION_COUNT);
+  if (data.go_down)
+    cursor_position = rotateVal(cursor_position, true, OPTION_COUNT);
+  if (data.rotate_left)
+    changeSetting(cursor_position, false);
+  if (data.rotate_right)
+    changeSetting(cursor_position, true);
 }
 
-void ModMenu::draw() {
-  if (!is_showing) return;
+void ModMenu::draw()
+{
+  if (!is_showing)
+    return;
 
   tool.update();
 
@@ -351,7 +399,8 @@ void ModMenu::draw() {
   double cursor_top = MENU_TOP + MENU_PADDING + cursor_position * (OPTION_HEIGHT + OPTION_SPACING);
   tool.drawRect(OPTION_LEFT, cursor_top, MENU_WIDTH - (2 * MENU_PADDING), OPTION_HEIGHT, cursor_color);
 
-  for (size_t idx = 0; idx < OPTION_COUNT; idx++) {
+  for (size_t idx = 0; idx < OPTION_COUNT; idx++)
+  {
     auto &relevant = Settings::settings[idx]->display;
     double top = MENU_TOP + MENU_PADDING + idx * (OPTION_HEIGHT + OPTION_SPACING);
     tool.drawOutlinedText(OPTION_LEFT, top, FString(relevant.title), 2.0);
@@ -368,9 +417,10 @@ bool ModMenu::dashEnabled() const { return Settings::SHOW_DASH_FRAMES.value; }
 bool ModMenu::crossupEnabled() const { return Settings::CROSSUP_ENABABLED.value; }
 int ModMenu::pauseType() const { return Settings::PAUSE_TYPE.value; }
 
-const int delayAmounts [4] = {0, 20, 30, 60};
+const int delayAmounts[4] = {0, 20, 30, 60};
 int ModMenu::delayAmount() const { return delayAmounts[Settings::DELAY_AMOUNT.value]; }
 
-CurrentOptions ModMenu::getScheme() const {
+CurrentOptions ModMenu::getScheme() const
+{
   return CurrentOptions{color_palettes[Settings::COLOR_SCHEME.value], fadeEnabled(), delimEnabled(), cancelEnabled(), crossupEnabled()};
 }

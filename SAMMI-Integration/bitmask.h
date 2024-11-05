@@ -1,7 +1,8 @@
 #pragma once
 
-template<size_t N>
-class bitmask {
+template <size_t N>
+class bitmask
+{
 	unsigned int words[(N + 31) / 32];
 
 public:

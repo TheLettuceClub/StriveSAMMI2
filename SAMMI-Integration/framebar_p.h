@@ -9,7 +9,8 @@
 
 constexpr int FRAME_SEGMENTS = 120;
 
-enum PlayerStateType {
+enum PlayerStateType
+{
   PST_Idle = 0,
   PST_BlockStunned,
   PST_HitStunned,
@@ -22,33 +23,38 @@ enum PlayerStateType {
   PST_End
 };
 
-enum ModifierType {
+enum ModifierType
+{
   MT_None = 0x0,
   MT_Cancellable = 0x1,
   MT_Projectile = 0x2,
   MT_SegmentEnd = 0x4,
   MT_CrossUp = 0x8
 };
-inline ModifierType operator|(ModifierType a, ModifierType b) { return (ModifierType)((int)a | (int)b);}
-inline ModifierType operator&(ModifierType a, ModifierType b) { return (ModifierType)((int)a & (int)b);}
-inline ModifierType& operator|=(ModifierType& a, ModifierType b) { return (a = a | b);}
-inline ModifierType& operator&=(ModifierType& a, ModifierType b) { return (a = a & b);}
+inline ModifierType operator|(ModifierType a, ModifierType b) { return (ModifierType)((int)a | (int)b); }
+inline ModifierType operator&(ModifierType a, ModifierType b) { return (ModifierType)((int)a & (int)b); }
+inline ModifierType &operator|=(ModifierType &a, ModifierType b) { return (a = a | b); }
+inline ModifierType &operator&=(ModifierType &a, ModifierType b) { return (a = a & b); }
 
-struct ProjectileTracker {
-  struct ProjectileInfo {
+struct ProjectileTracker
+{
+  struct ProjectileInfo
+  {
     asw_entity *direct_parent;
     asw_entity *root_parent;
     bool alive;
     int old;           // 0: brand new (protected), 1: not new, 2: marked old
     int hit_delay = 2; // this entity has hit something already and should not be considered for further damage
 
-    ProjectileInfo(asw_entity *source) {
+    ProjectileInfo(asw_entity *source)
+    {
       direct_parent = source->parent_obj;
       root_parent = direct_parent;
       alive = true;
       old = 0;
     }
-    ProjectileInfo(asw_entity *source, const std::pair<asw_entity *, ProjectileInfo> &parent_info) {
+    ProjectileInfo(asw_entity *source, const std::pair<asw_entity *, ProjectileInfo> &parent_info)
+    {
       direct_parent = parent_info.first;
       root_parent = parent_info.second.root_parent;
       alive = true;
@@ -64,7 +70,8 @@ struct ProjectileTracker {
   void reset() { ownership.clear(); }
 };
 
-struct PlayerState {
+struct PlayerState
+{
   bool any_prjt = false;
 
 public:
@@ -89,20 +96,23 @@ public:
   bool anyProjectiles() const { return (type == PST_ProjectileAttacking) || any_prjt; }
 };
 
-struct FrameInfo {
+struct FrameInfo
+{
   PlayerStateType state = PST_None;
   ModifierType mods = MT_None;
   double decay = 1.0;
   int trunc = 0;
 };
 
-struct MoveStats {
+struct MoveStats
+{
   int startup = 0;
   std::vector<std::pair<int, int>> actives{{0, 0}};
   void update(const PlayerState &current);
 };
 
-struct PlayerData {
+struct PlayerData
+{
   FrameInfo segments[FRAME_SEGMENTS];
   MoveStats working_stats;
   MoveStats displayed_stats;
@@ -118,7 +128,8 @@ struct PlayerData {
   void shift(const PlayerState &data);
 };
 
-struct FrameBar::Data {
+struct FrameBar::Data
+{
   DrawContext tool;
   bool combo_active = false;
   int current_segment_idx = 0;
@@ -132,7 +143,8 @@ struct FrameBar::Data {
     return {data.first.*func(args...), data.second.*func(args...)};
   }*/
   template <class... ArgT>
-  void doBoth(void (PlayerData::*func)(ArgT...), ArgT... args) {
+  void doBoth(void (PlayerData::*func)(ArgT...), ArgT... args)
+  {
     (data.first.*func)(args...);
     (data.second.*func)(args...);
   }
@@ -144,7 +156,7 @@ struct FrameBar::Data {
     func(&data.second, args...);
   }*/
 
-  void drawFrame(const CurrentOptions& scheme,  const FrameInfo &info, int top, int left);
+  void drawFrame(const CurrentOptions &scheme, const FrameInfo &info, int top, int left);
   void resetFrames();
 
   Data();

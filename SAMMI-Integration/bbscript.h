@@ -2,30 +2,31 @@
 
 #include "bitmask.h"
 
-namespace bbscript {
+namespace bbscript
+{
 
 	inline int BeginEndPairs[17][2] =
-	{
-	  { 0, 1 },
-	  { 4, 5 },
-	  { 7, 5 },
-	  { 9, 10 },
-	  { 15, 16 },
-	  { 21, 22 },
-	  { 6, 5 },
-	  { 8, 5 },
-	  { 39, 5 },
-	  { 30, 5 },
-	  { 68, 5 },
-	  { 69, 5 },
-	  { 2498, 5 },
-	  { 2499, 5 },
-	  { 2500, 5 },
-	  { 74, 5 },
-	  { 2513, 5 }
-	};
+		{
+			{0, 1},
+			{4, 5},
+			{7, 5},
+			{9, 10},
+			{15, 16},
+			{21, 22},
+			{6, 5},
+			{8, 5},
+			{39, 5},
+			{30, 5},
+			{68, 5},
+			{69, 5},
+			{2498, 5},
+			{2499, 5},
+			{2500, 5},
+			{74, 5},
+			{2513, 5}};
 
-	enum class opcode : int {
+	enum class opcode : int
+	{
 		begin_state = 0,
 		end_state = 1,
 		set_sprite = 2,
@@ -50,19 +51,21 @@ namespace bbscript {
 		MAX = 2596,
 	};
 
-	enum class variable_type : int {
+	enum class variable_type : int
+	{
 		abs_distance_x = 0xE,
 		abs_distance_y = 0xF,
 		pushbox_distance = 0x6A
 	};
 
-	enum class event_type : int {
+	enum class event_type : int
+	{
 		immediate = 0,
 		before_exit = 1,
 		landing = 2,
 		frame_step = 3,
 		fall_speed = 4, // requires trigger value
-	    landing_infinity = 5,
+		landing_infinity = 5,
 		hit_or_guard = 9,
 		hit = 10,
 		timer = 13, // requires trigger value
@@ -72,12 +75,14 @@ namespace bbscript {
 
 	using event_bitmask = bitmask<(size_t)event_type::MAX>;
 
-	enum class value_type : int {
+	enum class value_type : int
+	{
 		constant = 0,
 		variable = 2
 	};
 
-	enum class operation : int {
+	enum class operation : int
+	{
 		add = 0,
 		sub = 1,
 		mul = 2,
@@ -94,54 +99,57 @@ namespace bbscript {
 		le = 13,
 		not_and = 14, // ~a & b
 		ne = 15,
-		mod_0 = 16, // b % a == 0
-		mod_1 = 17, // b % a == 1
-		mod_2 = 18, // b % a == 2
+		mod_0 = 16,				   // b % a == 0
+		mod_1 = 17,				   // b % a == 1
+		mod_2 = 18,				   // b % a == 2
 		mul_direction_offset = 19, // a * direction + b
-		select_a = 20, // a
-		mul_direction = 21, // a * direction
+		select_a = 20,			   // a
+		mul_direction = 21,		   // a * direction
 		unk22 = 22
 	};
 
-	struct value {
+	struct value
+	{
 		value_type type;
-		union {
+		union
+		{
 			int constant;
 			variable_type variable;
 		};
 	};
 
 	void BBSInitializeFunctions();
-	
-	class code_pointer {
-	public:
-        code_pointer()
-        {
-            owner = 0;
-            ptr = 0;
-            base_ptr = 0;
-            state_remaining_time = 0;
-            last_sprite_time = 0;
-            nandemo = false;
-        }
 
-	    char* owner;
-		char* ptr;
-		char* base_ptr;
-	    int state_remaining_time;
-	    int last_sprite_time;
-	    bool nandemo;
+	class code_pointer
+	{
+	public:
+		code_pointer()
+		{
+			owner = 0;
+			ptr = 0;
+			base_ptr = 0;
+			state_remaining_time = 0;
+			last_sprite_time = 0;
+			nandemo = false;
+		}
+
+		char *owner;
+		char *ptr;
+		char *base_ptr;
+		int state_remaining_time;
+		int last_sprite_time;
+		bool nandemo;
 
 		opcode next_op() const
 		{
-			return *(opcode*)ptr;
+			return *(opcode *)ptr;
 		}
-	    
+
 		void read_script();
 		void execute_instruction(int code);
-	    void get_skip_begin_end_addr();
-		static char* get_func_addr_base(char* bbs_file, char* func_name);
-	    static char* get_action_addr_base(char* obj, char* action_name, int* out_index);
+		void get_skip_begin_end_addr();
+		static char *get_func_addr_base(char *bbs_file, char *func_name);
+		static char *get_action_addr_base(char *obj, char *action_name, int *out_index);
 	};
 
 } // bbscript

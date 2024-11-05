@@ -7,6 +7,7 @@
 #include "hitboxes.h"
 #include "menu.h"
 #include "sigscan.h"
+#include "sammi.h"
 #include <thread>
 #include <chrono>
 using namespace std::chrono_literals;
@@ -20,7 +21,7 @@ using namespace std::chrono_literals;
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 
-#define STRIVEFRAMEDATA_API __declspec(dllexport)
+#define SAMMI_INTEG_API __declspec(dllexport)
 
 /* Definitions */
 
@@ -118,7 +119,7 @@ public:
       return false;
     if (int current_mode = orig_GetGameMode(GameCommon); current_mode != last_mode)
     {
-      //       RC::Output::send<LogLevel::Warning>(STR("Mode Change: {}\n"), current_mode);
+      RC::Output::send<LogLevel::Warning>(STR("Mode Change: {}\n"), current_mode);
       last_mode = current_mode;
       in_allowed_mode = (std::find(allowed_modes.begin(), allowed_modes.end(), current_mode) != allowed_modes.end());
     }
@@ -382,6 +383,9 @@ void hook_MatchStart(AREDGameState_Battle *GameState)
   tracker.reset();
 
   orig_MatchStart(GameState);
+  //check
+  Output::send<LogLevel::Verbose>(STR("Strive Frame Viewer (SAMMI) match start hooked\n"));
+  SAMMI_start(GameState);
 }
 void hook_AHUDPostRender(void *hud)
 {
@@ -473,8 +477,7 @@ public:
   PLH::x64Detour *UpdateBattle_Detour;
   PLH::x64Detour *MatchStart_Detour;
 
-  StriveFrameData()
-      : CppUserModBase()
+  StriveFrameData() : CppUserModBase()
   {
     ModName = STR("SAMMI-Integration");
     ModVersion = STR("0.01");
@@ -517,12 +520,12 @@ public:
 
 extern "C"
 {
-  STRIVEFRAMEDATA_API CppUserModBase *start_mod()
+  SAMMI_INTEG_API CppUserModBase *start_mod()
   {
     return new StriveFrameData();
   }
 
-  STRIVEFRAMEDATA_API void uninstall_mod(CppUserModBase *mod)
+  SAMMI_INTEG_API void uninstall_mod(CppUserModBase *mod)
   {
     delete mod;
   }

@@ -22,18 +22,19 @@ sigscan::sigscan(const char *name)
 	end = start + info.SizeOfImage;
 }
 
-#pragma comment(lib,"user32")
+#pragma comment(lib, "user32")
 uintptr_t sigscan::scan(const char *sig, const char *mask) const
 {
 	const auto last_scan = end - strlen(mask) + 1;
-	for (auto addr = start; addr < last_scan; addr++) {
-		for (size_t i = 0;; i++) {
+	for (auto addr = start; addr < last_scan; addr++)
+	{
+		for (size_t i = 0;; i++)
+		{
 			if (mask[i] == '\0')
 				return addr;
-			if (mask[i] != '?' && sig[i] != *(char*)(addr + i))
+			if (mask[i] != '?' && sig[i] != *(char *)(addr + i))
 				break;
 		}
 	}
 	throw std::runtime_error("Sigscan failed");
 }
-

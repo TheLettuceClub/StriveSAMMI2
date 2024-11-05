@@ -5,10 +5,12 @@
 
 #include "arcsys.h"
 
-struct FLinearColor {
+struct FLinearColor
+{
   float R = 0.f, G = 0.f, B = 0.f, A = 0.f;
 
-  FLinearColor operator*(float mod) const {
+  FLinearColor operator*(float mod) const
+  {
     FLinearColor result = *this;
     result.R *= mod;
     result.G *= mod;
@@ -17,7 +19,8 @@ struct FLinearColor {
   }
 };
 
-enum EBlendMode {
+enum EBlendMode
+{
   BLEND_Opaque,
   BLEND_Masked,
   BLEND_Translucent,
@@ -28,66 +31,74 @@ enum EBlendMode {
   BLEND_MAX
 };
 
-struct FVector2D {
+struct FVector2D
+{
   float x;
   float y;
 
   FVector2D()
-  : x(0)
-  , y(0) {}
+      : x(0), y(0) {}
   FVector2D(float X, float Y)
-  : x(X)
-  , y(Y) {}
+      : x(X), y(Y) {}
   FVector2D(double X, double Y)
-  : x(static_cast<float>(X))
-  , y(static_cast<float>(Y)) {}
+      : x(static_cast<float>(X)), y(static_cast<float>(Y)) {}
   FVector2D(int X, int Y)
-  : x(static_cast<float>(X))
-  , y(static_cast<float>(Y)) {}
+      : x(static_cast<float>(X)), y(static_cast<float>(Y)) {}
 
-  FVector2D Rotate(const float angle) const {
+  FVector2D Rotate(const float angle) const
+  {
     const auto ca = cosf(angle);
     const auto sa = sinf(angle);
     return FVector2D(x * ca + y * -sa, x * sa + y * ca);
   }
-  float SizeSquared() const {
+  float SizeSquared() const
+  {
     return x * x + y * y;
   }
 
-  float Size() const {
+  float Size() const
+  {
     return sqrt(SizeSquared());
   }
 
-  FVector2D operator+(const FVector2D &other) const {
+  FVector2D operator+(const FVector2D &other) const
+  {
     return FVector2D(x + other.x, y + other.y);
   }
 
-  FVector2D operator-(const FVector2D &other) const {
+  FVector2D operator-(const FVector2D &other) const
+  {
     return FVector2D(x - other.x, y - other.y);
   }
 
-  FVector2D operator*(float scalar) const {
+  FVector2D operator*(float scalar) const
+  {
     return FVector2D(x * scalar, y * scalar);
   }
 
-  FVector2D operator/(float scalar) const {
+  FVector2D operator/(float scalar) const
+  {
     return FVector2D(x / scalar, y / scalar);
   }
 };
 
-namespace DrawParams {
-  struct Size {
+namespace DrawParams
+{
+  struct Size
+  {
     int32_t SizeX = 0;
     int32_t SizeY = 0;
   };
-  struct Rect {
+  struct Rect
+  {
     FLinearColor RectColor;
     float ScreenX;
     float ScreenY;
     float ScreenW;
     float ScreenH;
   };
-  struct Text {
+  struct Text
+  {
     RC::Unreal::FString Text;
     FLinearColor TextColor;
     float ScreenX;
@@ -96,7 +107,8 @@ namespace DrawParams {
     float Scale;
     bool bScalePosition;
   };
-  struct Line {
+  struct Line
+  {
     float StartScreenX;
     float StartScreenY;
     float EndScreenX;
@@ -104,7 +116,8 @@ namespace DrawParams {
     FLinearColor LineColor;
     float LineThickness;
   };
-  struct Icon {
+  struct Icon
+  {
     void *Texture;
     float ScreenX;
     float ScreenY;
@@ -121,13 +134,15 @@ namespace DrawParams {
     float Rotation;
     FVector2D RotPivot;
   };
-  struct Project {
+  struct Project
+  {
     SimpleFVector location;
     SimpleFVector result;
   };
 }
 
-class DrawTool {
+class DrawTool
+{
   bool valid = false;
   Unreal::UObject *ref_hud = nullptr;
   Unreal::UObject *ref_player = nullptr;
@@ -157,7 +172,8 @@ public:
   double getHeight() const { return screen_height; }
   double getUnits() const { return units; }
 
-  SimpleFVector project(const SimpleFVector &world_coords) const {
+  SimpleFVector project(const SimpleFVector &world_coords) const
+  {
     DrawParams::Project params{
         world_coords,
         SimpleFVector{-1, -1, -1}};
@@ -166,7 +182,8 @@ public:
   }
 
   // params are in screen space coordinates
-  void drawRect(double left, double top, double width, double height, const FLinearColor &color) const {
+  void drawRect(double left, double top, double width, double height, const FLinearColor &color) const
+  {
     DrawParams::Rect params{
         color,
         static_cast<float>(left),
@@ -175,7 +192,8 @@ public:
         static_cast<float>(height)};
     ref_hud->ProcessEvent(ref_drawrect, &params);
   }
-  void drawText(double left, double top, const Unreal::FString &text, const FLinearColor &color, double scale) const {
+  void drawText(double left, double top, const Unreal::FString &text, const FLinearColor &color, double scale) const
+  {
     DrawParams::Text params{
         text,
         color,
@@ -186,7 +204,8 @@ public:
         false};
     ref_hud->ProcessEvent(ref_drawtext, &params);
   }
-  void drawLine(FVector2D start, FVector2D end, const FLinearColor &color, float thickness) const {
+  void drawLine(FVector2D start, FVector2D end, const FLinearColor &color, float thickness) const
+  {
     DrawParams::Line params{
         start.x,
         start.y,
@@ -200,7 +219,8 @@ public:
 };
 
 // handles transformation from draw space to screen space
-class DrawContext {
+class DrawContext
+{
   double ratio_x;
   double ratio_y;
   double center_offset_x = 0.0;
@@ -209,18 +229,18 @@ class DrawContext {
 
 public:
   DrawContext(double x, double y)
-  : ratio_x(x)
-  , ratio_y(y)
-  , tool(&DrawTool::instance()) // storing it is faster than the singleton access due to imposed thread safety
+      : ratio_x(x), ratio_y(y), tool(&DrawTool::instance()) // storing it is faster than the singleton access due to imposed thread safety
   {
   }
-  void update() {
+  void update()
+  {
     center_offset_x = ratio_x * tool->getWidth();
     center_offset_y = ratio_y * tool->getHeight();
   }
 
   // params are in draw space coordinates
-  void drawRect(int x, int y, int width, int height, const FLinearColor &color) const {
+  void drawRect(int x, int y, int width, int height, const FLinearColor &color) const
+  {
     double units = tool->getUnits();
     double prj_x = center_offset_x + (units * x);
     double prj_y = center_offset_y + (units * y);
@@ -228,7 +248,8 @@ public:
     double prj_height = units * height;
     tool->drawRect(prj_x, prj_y, prj_width, prj_height, color);
   }
-  void drawOutlinedText(int x, int y, const Unreal::FString &text, double scale) const {
+  void drawOutlinedText(int x, int y, const Unreal::FString &text, double scale) const
+  {
     double units = tool->getUnits();
     double prj_x = center_offset_x + (units * x);
     double prj_y = center_offset_y + (units * y);

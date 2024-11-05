@@ -12,15 +12,19 @@
 static void clip_line_y(
     const FVector2D &line_a, const FVector2D &line_b,
     float min_x, float max_x,
-    float *min_y, float *max_y) {
+    float *min_y, float *max_y)
+{
   const auto delta = line_b - line_a;
 
-  if (abs(delta.x) > FLT_EPSILON) {
+  if (abs(delta.x) > FLT_EPSILON)
+  {
     const auto slope = delta.y / delta.x;
     const auto intercept = line_a.y - slope * line_a.x;
     *min_y = slope * min_x + intercept;
     *max_y = slope * max_x + intercept;
-  } else {
+  }
+  else
+  {
     *min_y = line_a.y;
     *max_y = line_b.y;
   }
@@ -33,7 +37,8 @@ static void clip_line_y(
 bool line_box_intersection(
     const FVector2D &box_min, const FVector2D &box_max,
     const FVector2D &line_a, const FVector2D &line_b,
-    float *entry_fraction, float *exit_fraction) {
+    float *entry_fraction, float *exit_fraction)
+{
   // No intersection if line runs along the edge of the box
   if (line_a.x == line_b.x && (line_a.x == box_min.x || line_a.x == box_max.x))
     return false;
@@ -76,7 +81,8 @@ bool line_box_intersection(
   return true;
 }
 
-struct DrawnHitbox {
+struct DrawnHitbox
+{
   hitbox::box_type type;
 
   // Unclipped corners of filled box
@@ -89,12 +95,12 @@ struct DrawnHitbox {
   std::vector<std::array<FVector2D, 2>> lines;
 
   DrawnHitbox(const hitbox &box)
-  : type(box.type)
-  , corners{
-        FVector2D(box.x, box.y),
-        FVector2D(box.x + box.w, box.y),
-        FVector2D(box.x + box.w, box.y + box.h),
-        FVector2D(box.x, box.y + box.h)} {
+      : type(box.type), corners{
+                            FVector2D(box.x, box.y),
+                            FVector2D(box.x + box.w, box.y),
+                            FVector2D(box.x + box.w, box.y + box.h),
+                            FVector2D(box.x, box.y + box.h)}
+  {
     for (auto i = 0; i < 4; i++)
       lines.push_back(std::array{corners[i], corners[(i + 1) % 4]});
 
@@ -102,18 +108,21 @@ struct DrawnHitbox {
   }
 
   // Clip outlines against another hitbox
-  void clip_lines(const DrawnHitbox &other) {
+  void clip_lines(const DrawnHitbox &other)
+  {
     auto old_lines = std::move(lines);
     lines.clear();
 
-    for (auto &line : old_lines) {
+    for (auto &line : old_lines)
+    {
       float entry_fraction, exit_fraction;
       auto intersected = line_box_intersection(
           other.corners[0], other.corners[2],
           line[0], line[1],
           &entry_fraction, &exit_fraction);
 
-      if (!intersected) {
+      if (!intersected)
+      {
         lines.push_back(line);
         continue;
       }
@@ -129,11 +138,13 @@ struct DrawnHitbox {
   }
 
   // Clip filled rectangle against another hitbox
-  void clip_fill(const DrawnHitbox &other) {
+  void clip_fill(const DrawnHitbox &other)
+  {
     auto old_fill = std::move(fill);
     fill.clear();
 
-    for (const auto &box : old_fill) {
+    for (const auto &box : old_fill)
+    {
       const auto &box_min = box[0];
       const auto &box_max = box[2];
 
@@ -145,13 +156,15 @@ struct DrawnHitbox {
           std::min(box_max.x, other.corners[2].x),
           std::min(box_max.y, other.corners[2].y));
 
-      if (clip_min.x > clip_max.x || clip_min.y > clip_max.y) {
+      if (clip_min.x > clip_max.x || clip_min.y > clip_max.y)
+      {
         // No intersection
         fill.push_back(box);
         continue;
       }
 
-      if (clip_min.x > box_min.x) {
+      if (clip_min.x > box_min.x)
+      {
         // Left box
         fill.push_back(std::array{
             FVector2D(box_min.x, box_min.y),
@@ -160,7 +173,8 @@ struct DrawnHitbox {
             FVector2D(box_min.x, box_max.y)});
       }
 
-      if (clip_max.x < box_max.x) {
+      if (clip_max.x < box_max.x)
+      {
         // Right box
         fill.push_back(std::array{
             FVector2D(clip_max.x, box_min.y),
@@ -169,7 +183,8 @@ struct DrawnHitbox {
             FVector2D(clip_max.x, box_max.y)});
       }
 
-      if (clip_min.y > box_min.y) {
+      if (clip_min.y > box_min.y)
+      {
         // Top box
         fill.push_back(std::array{
             FVector2D(clip_min.x, box_min.y),
@@ -178,7 +193,8 @@ struct DrawnHitbox {
             FVector2D(clip_min.x, clip_min.y)});
       }
 
-      if (clip_max.y < box_max.y) {
+      if (clip_max.y < box_max.y)
+      {
         // Bottom box
         fill.push_back(std::array{
             FVector2D(clip_min.x, clip_max.y),
@@ -190,7 +206,8 @@ struct DrawnHitbox {
   }
 };
 
-void asw_coords_to_screen(const DrawTool &tool, FVector2D &pos) {
+void asw_coords_to_screen(const DrawTool &tool, FVector2D &pos)
+{
   pos.x *= asw_engine::COORD_SCALE / 1000.F;
   pos.y *= asw_engine::COORD_SCALE / 1000.F;
   TOO_MUCH_DEBUG(STR("---asw scaled: {},{}\n"), pos.x, pos.y);
@@ -204,9 +221,11 @@ void asw_coords_to_screen(const DrawTool &tool, FVector2D &pos) {
   pos = FVector2D(proj.x, proj.y);
 }
 
-void transform_hitbox_point(const DrawTool &tool, const asw_entity &entity, FVector2D &pos, bool is_throw) {
+void transform_hitbox_point(const DrawTool &tool, const asw_entity &entity, FVector2D &pos, bool is_throw)
+{
   TOO_MUCH_DEBUG(STR("-transform. input: {},{}, entity: {},{}\n"), pos.x, pos.y, entity.get_pos_x(), entity.get_pos_y());
-  if (!is_throw) {
+  if (!is_throw)
+  {
     TOO_MUCH_DEBUG(STR("--not throw. scale: {},{}, angle: {}\n"), entity.scale_x, entity.scale_y, entity.angle_x);
     pos.x *= -entity.scale_x;
     pos.y *= -entity.scale_y;
@@ -219,7 +238,9 @@ void transform_hitbox_point(const DrawTool &tool, const asw_entity &entity, FVec
     if (entity.facing == direction::left)
       pos.x *= -1.f;
     TOO_MUCH_DEBUG(STR("--flipped: {},{}\n"), pos.x, pos.y);
-  } else if (entity.opponent != nullptr) {
+  }
+  else if (entity.opponent != nullptr)
+  {
     // Throw direction is based off of your facing direction
     if (entity.facing == direction::left)
       pos.x *= -1.f;
@@ -234,7 +255,8 @@ void transform_hitbox_point(const DrawTool &tool, const asw_entity &entity, FVec
   asw_coords_to_screen(tool, pos);
 }
 
-void draw_hitbox(const DrawTool &tool, const asw_entity &entity, const DrawnHitbox &box) {
+void draw_hitbox(const DrawTool &tool, const asw_entity &entity, const DrawnHitbox &box)
+{
   FLinearColor color;
   if (box.type == hitbox::box_type::hit)
     color = FLinearColor{1.f, 0.f, 0.f, .25f};
@@ -254,7 +276,8 @@ void draw_hitbox(const DrawTool &tool, const asw_entity &entity, const DrawnHitb
       box.corners[2].x, box.corners[2].y,
       box.corners[3].x, box.corners[3].y);
 
-  for (auto fill : box.fill) {
+  for (auto fill : box.fill)
+  {
     TOO_MUCH_DEBUG(
         STR("  Init Fill: {},{} . {},{} . {},{} . {},{}\n"),
         fill[0].x, fill[0].y,
@@ -285,7 +308,8 @@ void draw_hitbox(const DrawTool &tool, const asw_entity &entity, const DrawnHitb
     tool.drawRect(left, top, width, height, color);
   }
 
-  for (const auto &line : box.lines) {
+  for (const auto &line : box.lines)
+  {
     auto start = line[0];
     auto end = line[1];
     transform_hitbox_point(tool, entity, start, is_throw);
@@ -295,7 +319,8 @@ void draw_hitbox(const DrawTool &tool, const asw_entity &entity, const DrawnHitb
   }
 }
 
-hitbox calc_afro_box(const asw_player &entity, int exIndex) {
+hitbox calc_afro_box(const asw_player &entity, int exIndex)
+{
   hitbox afro;
   afro.type = hitbox::box_type::hurt;
 
@@ -304,7 +329,7 @@ hitbox calc_afro_box(const asw_player &entity, int exIndex) {
   afro.h = static_cast<float>(entity.afroH);
   afro.w = static_cast<float>(entity.afroW);
 
-//  Output::send<LogLevel::Verbose>(STR("Extend Boxes: {} x {} y\n"), extend.x , extend.y);
+  //  Output::send<LogLevel::Verbose>(STR("Extend Boxes: {} x {} y\n"), extend.x , extend.y);
 
   afro.x = extend.x - static_cast<float>(entity.afroW) / 2.f;
   afro.y = extend.y - static_cast<float>(entity.afroH) / 2.f;
@@ -312,7 +337,8 @@ hitbox calc_afro_box(const asw_player &entity, int exIndex) {
   return afro;
 }
 
-hitbox calc_throw_box(const asw_player &entity) {
+hitbox calc_throw_box(const asw_player &entity)
+{
   // Create a fake hitbox for throws to be displayed
   hitbox box;
   box.type = hitbox::box_type::grab;
@@ -322,93 +348,112 @@ hitbox calc_throw_box(const asw_player &entity) {
   const int AIR_PUSHBOX_HEIGHT_HALF = 75000;
 
   // Ground throws have `activation range y xxx` as -1 for both
-  if (entity.activation_range_y_min == -1 && entity.activation_range_y_max == -1) {  // Ground throw calcs
+  if (entity.activation_range_y_min == -1 && entity.activation_range_y_max == -1)
+  { // Ground throw calcs
     box.x = 0.f;
     box.w = (float)(pushbox_front + entity.throw_range);
     box.y = 0.f;
 
     // No throw height, use pushbox height for display
     box.h = (float)entity.pushbox_height();
-  } else {  // Air calcs
+  }
+  else
+  { // Air calcs
     // Basically only accounting for the x_min < 0 < x_max case; you can probably also account for x_min < x_max < 0 or 0 < x_min < x_max but I'm lazy
-    if (entity.activation_range_x_min < -1) {
-      box.x = (float) std::max(entity.activation_range_x_min, -entity.throw_range - 2 * AIR_PUSHBOX_WIDTH_HALF) + AIR_PUSHBOX_WIDTH_HALF;
-      box.w = (float) -box.x;
-    } else {
+    if (entity.activation_range_x_min < -1)
+    {
+      box.x = (float)std::max(entity.activation_range_x_min, -entity.throw_range - 2 * AIR_PUSHBOX_WIDTH_HALF) + AIR_PUSHBOX_WIDTH_HALF;
+      box.w = (float)-box.x;
+    }
+    else
+    {
       // box.w already preset
       box.x = -(float)(pushbox_front + entity.throw_range);
       box.w = -box.x;
     }
 
-    if (entity.activation_range_x_max > -1) {
-      box.w += (float) std::min(entity.activation_range_x_max, entity.throw_range + 2 * AIR_PUSHBOX_WIDTH_HALF) - AIR_PUSHBOX_WIDTH_HALF;
-    } else {
-      box.w += (float) (pushbox_front + entity.throw_range);
+    if (entity.activation_range_x_max > -1)
+    {
+      box.w += (float)std::min(entity.activation_range_x_max, entity.throw_range + 2 * AIR_PUSHBOX_WIDTH_HALF) - AIR_PUSHBOX_WIDTH_HALF;
+    }
+    else
+    {
+      box.w += (float)(pushbox_front + entity.throw_range);
     }
 
-    box.y = (float) (entity.pushboxYUpperAir - entity.pushboxYLowerAir) / 2.0f + (float) (entity.activation_range_y_min + AIR_PUSHBOX_HEIGHT_HALF);
-    box.h = (float) (entity.activation_range_y_max - entity.activation_range_y_min) - AIR_PUSHBOX_HEIGHT_HALF * 2;
+    box.y = (float)(entity.pushboxYUpperAir - entity.pushboxYLowerAir) / 2.0f + (float)(entity.activation_range_y_min + AIR_PUSHBOX_HEIGHT_HALF);
+    box.h = (float)(entity.activation_range_y_max - entity.activation_range_y_min) - AIR_PUSHBOX_HEIGHT_HALF * 2;
   }
 
   return box;
 }
 
-void draw_hitboxes(const DrawTool &tool, const asw_entity &entity, bool active) {
+void draw_hitboxes(const DrawTool &tool, const asw_entity &entity, bool active)
+{
   const auto count = entity.hitbox_count + entity.hurtbox_count;
 
   std::vector<DrawnHitbox> hitboxes;
   // Collect hitbox info
-  for (auto i = 0; i < count; i++) {
+  for (auto i = 0; i < count; i++)
+  {
     const auto &box = entity.hitboxes[i];
 
     // Don't show inactive hitboxes
-    if (box.type == hitbox::box_type::hit && !active) {
+    if (box.type == hitbox::box_type::hit && !active)
+    {
       continue;
-    } else if (box.type == hitbox::box_type::hurt && entity.is_strike_invuln()) {
-        continue;
+    }
+    else if (box.type == hitbox::box_type::hurt && entity.is_strike_invuln())
+    {
+      continue;
     }
 
     hitboxes.push_back(DrawnHitbox(box));
   }
 
-  
-  if(entity.is_player){
-    asw_player& player = *(asw_player*)&entity;
+  if (entity.is_player)
+  {
+    asw_player &player = *(asw_player *)&entity;
 
     // hacky afro hurtbox
     // Jank way of finding the last hitbox (since entity.hitboxes isn't actually an array i don't think???)
     // for all hitboxes: -1000 < x,y < 1000 and w,h != 0
     // honestly idk what's loaded next in the memory after the hitboxes array
-    if (player.afro && !player.is_strike_invuln()) {
-      for (int i = 1; i < 6; i++) {
+    if (player.afro && !player.is_strike_invuln())
+    {
+      for (int i = 1; i < 6; i++)
+      {
         if (-1000 > entity.hitboxes[count + i].x || -1000 > entity.hitboxes[count + i].y ||
             entity.hitboxes[count + i].x > 1000 || entity.hitboxes[count + i].y > 1000 ||
-            entity.hitboxes[count + i].w != 0 || entity.hitboxes[count + i].h != 0) {
+            entity.hitboxes[count + i].w != 0 || entity.hitboxes[count + i].h != 0)
+        {
 
           hitboxes.push_back(calc_afro_box(player, count + i - 1));
           break;
         }
       }
-
     }
 
     // Add throw hitbox if in use
-    if (player.throw_range >= 0 && active) {
+    if (player.throw_range >= 0 && active)
+    {
       hitboxes.push_back(calc_throw_box(player));
     }
   }
-  
 
-  for (auto i = 0; i < hitboxes.size(); i++) {
+  for (auto i = 0; i < hitboxes.size(); i++)
+  {
     // Clip outlines
-    for (auto j = 0; j < hitboxes.size(); j++) {
+    for (auto j = 0; j < hitboxes.size(); j++)
+    {
       if (i != j && hitboxes[i].type == hitboxes[j].type)
         hitboxes[i].clip_lines(hitboxes[j]);
     }
 
     // Clip fill against every hitbox after, since two boxes
     // shouldn't both be clipped against each other
-    for (auto j = i + 1; j < hitboxes.size(); j++) {
+    for (auto j = i + 1; j < hitboxes.size(); j++)
+    {
       if (hitboxes[i].type == hitboxes[j].type)
         hitboxes[i].clip_fill(hitboxes[j]);
     }
@@ -420,7 +465,8 @@ void draw_hitboxes(const DrawTool &tool, const asw_entity &entity, bool active) 
 void draw_rect_no_outline(
     const DrawTool &tool,
     const std::array<FVector2D, 4> &corners,
-    const FLinearColor &color) {
+    const FLinearColor &color)
+{
   auto left = corners[0].x;
   auto top = corners[0].y;
   auto width = corners[2].x - left;
@@ -432,15 +478,18 @@ void draw_rect_no_outline(
 void draw_rect(
     const DrawTool &tool,
     const std::array<FVector2D, 4> &corners,
-    const FLinearColor &color) {
+    const FLinearColor &color)
+{
 
   draw_rect_no_outline(tool, corners, color);
-  for (auto i = 0; i < 4; i++) {
+  for (auto i = 0; i < 4; i++)
+  {
     tool.drawLine(corners[i], corners[(i + 1) % 4], color, 2.F);
   }
 }
 
-void draw_pushbox(const DrawTool &tool, const asw_entity &entity) {
+void draw_pushbox(const DrawTool &tool, const asw_entity &entity)
+{
   int left, top, right, bottom;
   entity.get_pushbox(&left, &top, &right, &bottom);
 
@@ -477,17 +526,20 @@ void draw_pushbox(const DrawTool &tool, const asw_entity &entity) {
   // Show outlined pushbox when pushbox doesn't have intangibility
   if (entity.is_pushbox_active() || !entity.is_throw_invuln())
     draw_rect(tool, corners, color);
-//  else
-//    draw_rect_no_outline(tool, corners, color);
+  //  else
+  //    draw_rect_no_outline(tool, corners, color);
 }
 
-void drawAllBoxes() {
+void drawAllBoxes()
+{
   const auto *engine = asw_engine::get();
-  if (!engine) return;
+  if (!engine)
+    return;
 
   const auto &tool = DrawTool::instance();
 
-  for (auto entidx = engine->entity_count - 1; entidx >= 0; entidx--) {
+  for (auto entidx = engine->entity_count - 1; entidx >= 0; entidx--)
+  {
     const auto &entity = *engine->entities[entidx];
 
     draw_pushbox(tool, entity);
@@ -496,8 +548,9 @@ void drawAllBoxes() {
     draw_hitboxes(tool, entity, active);
 
     const auto *attached = entity.attached;
-    while (attached != nullptr) {
-//      Output::send<LogLevel::Verbose>(STR("Attached Entity\n"));
+    while (attached != nullptr)
+    {
+      //      Output::send<LogLevel::Verbose>(STR("Attached Entity\n"));
 
       draw_hitboxes(tool, *attached, active);
       attached = attached->attached;

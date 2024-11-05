@@ -17,5 +17,5 @@ public:
 
 inline void *get_rip_relative(uintptr_t offset)
 {
-	return (void*)(offset + 4 + *(int32_t*)offset);
+	return (void *)(offset + 4 + *(int32_t *)offset);
 }
