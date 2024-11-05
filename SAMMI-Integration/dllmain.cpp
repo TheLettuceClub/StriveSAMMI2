@@ -1,10 +1,16 @@
 #include <stdio.h>
 #include <Mod/CppUserModBase.hpp>
+#include <DynamicOutput/DynamicOutput.hpp>
+#include <Unreal/UObjectGlobals.hpp>
+#include <Unreal/UObject.hpp>
 
-class MyAwesomeMod : public RC::CppUserModBase
+using namespace RC;
+using namespace RC::Unreal;
+
+class SAMMInteg : public RC::CppUserModBase
 {
 public:
-    MyAwesomeMod() : CppUserModBase()
+    SAMMInteg() : CppUserModBase()
     {
         ModName = STR("SAMMI-Integration");
         ModVersion = STR("1.0");
@@ -12,12 +18,19 @@ public:
         ModAuthors = STR("TheLettuceClub");
         // Do not change this unless you want to target a UE4SS version
         // other than the one you're currently building with somehow.
-        //ModIntendedSDKVersion = STR("2.6");
-        
-        printf("Sammi says hello\n");
+        // ModIntendedSDKVersion = STR("2.6");
+
+        Output::send<LogLevel::Verbose>(STR("SAMMI integration says hi\n"));
     }
 
-    ~MyAwesomeMod() override
+    auto on_unreal_init() -> void override
+    {
+        // You are allowed to use the 'Unreal' namespace in this function and anywhere else after this function has fired.
+        auto Object = UObjectGlobals::StaticFindObject<UObject *>(nullptr, nullptr, STR("/Script/CoreUObject.Object"));
+        Output::send<LogLevel::Verbose>(STR("Object Name: {}\n"), Object->GetFullName());
+    }
+
+    ~SAMMInteg() override
     {
     }
 
@@ -26,15 +39,15 @@ public:
     }
 };
 
-#define MY_AWESOME_MOD_API __declspec(dllexport)
+#define SAMMI_INTEGRATION_API __declspec(dllexport)
 extern "C"
 {
-    MY_AWESOME_MOD_API RC::CppUserModBase* start_mod()
+    SAMMI_INTEGRATION_API RC::CppUserModBase *start_mod()
     {
-        return new MyAwesomeMod();
+        return new SAMMInteg();
     }
 
-    MY_AWESOME_MOD_API void uninstall_mod(RC::CppUserModBase* mod)
+    SAMMI_INTEGRATION_API void uninstall_mod(RC::CppUserModBase *mod)
     {
         delete mod;
     }

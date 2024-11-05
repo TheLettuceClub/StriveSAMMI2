@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/StriveFrameData/include",
+                "${workspaceFolder}/StriveFrameData/",
                 "${workspaceFolder}/RE-UE4SS/UE4SS/include",
                 "${workspaceFolder}/RE-UE4SS/deps/first/ArgsParser/include",
                 "${workspaceFolder}/RE-UE4SS/deps/first/ASMHelper/include",
@@ -23,16 +23,9 @@
                 "${workspaceFolder}/RE-UE4SS/deps/first/ScopedTimer/include",
                 "${workspaceFolder}/RE-UE4SS/deps/first/SinglePassSigScanner/include",
                 "${workspaceFolder}/RE-UE4SS/deps/first/Unreal/include/**",
-                "${workspaceFolder}/build/_deps/glaze-src",
-                "${workspaceFolder}/build/_deps/imgui-src",
-                "${workspaceFolder}/build/_deps/imguitextedit-src",
-                "${workspaceFolder}/build/_deps/polyhook2-src",
-                "${workspaceFolder}/build/_deps/raw_pdb-src",
-                "${workspaceFolder}/build/_deps/zydis-src/include",
-                "${workspaceFolder}/build/_deps/zydis-src/dependencies/zycore/include",
                 "${workspaceFolder}/RE-UE4SS/deps/first/Unreal/generated_include",
-                "${workspaceFolder}/build/_deps/zydis-src/msvc",
-                "${workspaceFolder}/build/_deps/polyhook2-src/asmjit/src"
+                "${workspaceFolder}/RE-UE4SS/UE4SS/include/**",
+                "${workspaceFolder}/RE-UE4SS/UE4SS/include/Mod/"
             ],
             "defines": [
                 "_DEBUG",
