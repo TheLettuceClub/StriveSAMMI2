@@ -3,7 +3,7 @@
 #include "arcsys.h"
 #include "draw_utils.h"
 
-#if 0
+#if 1
 #define TOO_MUCH_DEBUG(...) RC::Output::send<LogLevel::Warning>(__VA_ARGS__)
 #else
 #define TOO_MUCH_DEBUG(...)
@@ -328,8 +328,8 @@ hitbox calc_afro_box(const asw_player &entity, int exIndex)
 
   afro.h = static_cast<float>(entity.afroH);
   afro.w = static_cast<float>(entity.afroW);
-
-  //  Output::send<LogLevel::Verbose>(STR("Extend Boxes: {} x {} y\n"), extend.x , extend.y);
+  
+  Output::send<LogLevel::Verbose>(STR("Extend Boxes: {} x {} y\n"), extend.x , extend.y);
 
   afro.x = extend.x - static_cast<float>(entity.afroW) / 2.f;
   afro.y = extend.y - static_cast<float>(entity.afroH) / 2.f;
@@ -550,7 +550,7 @@ void drawAllBoxes()
     const auto *attached = entity.attached;
     while (attached != nullptr)
     {
-      //      Output::send<LogLevel::Verbose>(STR("Attached Entity\n"));
+      Output::send<LogLevel::Verbose>(STR("Attached Entity\n"));
 
       draw_hitboxes(tool, *attached, active);
       attached = attached->attached;

@@ -53,6 +53,7 @@ void SAMMI_update(AREDGameState_Battle *GameState)
 {
     // level 1 data
     auto asEngine = GameState->get_0xBB8();
+    // auto asEvents = GameState->get_0xBD8();
 
     // level 2 data
     auto player1block = asEngine->get_0x0(0); // there are only 2 entries in the array so this is fine
@@ -78,10 +79,10 @@ void SAMMI_update(AREDGameState_Battle *GameState)
     // level 3 data
     auto p1afro = player1block.entity->afro; // this is the better way to get data, block has all of the things entity has and more
     auto p1air = player1block.entity->airborne;
-    auto p1apd = player1block.entity->atk_param_defend; // there are extensions to these
-    auto p1apexc = player1block.entity->atk_param_ex_counter;
-    auto p1apexd = player1block.entity->atk_param_ex_defend;
-    auto p1apexn = player1block.entity->atk_param_ex_normal;
+    // auto p1apd = player1block.entity->atk_param_defend; // there are extensions to these
+    // auto p1apexc = player1block.entity->atk_param_ex_counter;
+    // auto p1apexd = player1block.entity->atk_param_ex_defend;
+    // auto p1apexn = player1block.entity->atk_param_ex_normal;
     auto p1aph = player1block.entity->atk_param_hit;
     auto p1blockamnt = player1block.entity->blockstun;
     auto p1cinectr = player1block.entity->cinematic_counter;
@@ -100,8 +101,6 @@ void SAMMI_update(AREDGameState_Battle *GameState)
     auto p1posy = player1block.entity->get_pos_y();
     auto p1slowdown = player1block.entity->slowdown_timer;
     auto p1wakingup = player1block.entity->wakeup;
-    p1aph.damage;
-    p1aph.get_0xC();
 
     // auto pw1name = pawn1->GetFullName();
     // auto pw2name = pawn2->GetFullName();
@@ -126,8 +125,8 @@ void SAMMI_update(AREDGameState_Battle *GameState)
     // auto p1datklvlcl = p1apd.atk_level_clash;
     // auto p1datklvlgr = p1apd.atk_level_guard;
     // auto p1datktyp = p1apd.atk_type;
-    auto p1dchipdmg = p1apd.chip_damage;
-    auto p1dchpdrate = p1apd.chip_damage_rate;
+    // auto p1dchipdmg = p1apd.chip_damage;
+    // auto p1dchpdrate = p1apd.chip_damage_rate;
     // auto p1dmg = p1apd.damage;
     // auto p1dhstop = p1apd.hitstop;
     // auto p1dprorate = p1apd.proration;
@@ -135,41 +134,43 @@ void SAMMI_update(AREDGameState_Battle *GameState)
     // auto p1dprorato = p1apd.proration_once;
     // auto p1dproratrf = p1apd.proration_rate_first;
     // auto p1dproratro = p1apd.proration_rate_once;
-    auto p1drisc = p1apd.risc;
+    // auto p1drisc = p1apd.risc;
 
     // auto p1hatklvl = p1aph.atk_level;
     // auto p1hatklvlcl = p1aph.atk_level_clash;
-    auto p1hatklvlgr = p1aph.atk_level_guard;
-    // auto p1hatktyp = p1aph.atk_type;
-    auto p1hchipdmg = p1aph.chip_damage;
-    auto p1hchpdrate = p1aph.chip_damage_rate;
-    // auto p1hdmg = p1aph.damage;
+    // auto p1hatklvlgr = p1aph.atk_level_guard;
+    auto p1hatktyp = p1aph.get_0x0();
+    auto p1hchipdmg = p1aph.get_0x270();
+    auto p1hchpdrate = p1aph.get_0x274();
+    auto p1hdmg = p1aph.get_0xC();
     // auto p1hhstop = p1aph.hitstop;
     // auto p1hprorate = p1aph.proration;
     // auto p1hproratf = p1aph.proration_first;
     // auto p1hprorato = p1aph.proration_once;
     // auto p1hproratrf = p1aph.proration_rate_first;
     // auto p1hproratro = p1aph.proration_rate_once;
-    auto p1hrisc = p1aph.risc;
-    auto p1hstagger = p1aph.stagger_time;
-    auto p1hunburst = p1aph.unburst_time;
+    auto p1hrisc = p1aph.get_0x258();
+    auto p1hstagger = p1aph.get_0x14C();
+    auto p1hunburst = p1aph.get_0x278();
 
-    auto p1enhitstun = p1apexn.atk_hitstun;
-    auto p1enuntech = p1apexn.atk_untech;
-    auto p1enwallstick = p1apexn.atk_wallstick_time;
+    // auto p1enhitstun = p1apexn.atk_hitstun;
+    // auto p1enuntech = p1apexn.atk_untech;
+    // auto p1enwallstick = p1apexn.atk_wallstick_time;
 
     // auto p1edhitstun = p1apexd.atk_hitstun;
     // auto p1eduntech = p1apexd.atk_untech;
     // auto p1edwallstick = p1apexd.atk_wallstick_time;
 
-    auto p1echitstun = p1apexc.atk_hitstun;
-    auto p1ecuntech = p1apexc.atk_untech;
-    auto p1ecwallstick = p1apexc.atk_wallstick_time;
+    // auto p1echitstun = p1apexc.atk_hitstun;
+    // auto p1ecuntech = p1apexc.atk_untech;
+    // auto p1ecwallstick = p1apexc.atk_wallstick_time;
 
     // i wonder why i do this to myself....
     Output::send<LogLevel::Verbose>(STR("p1afro: {}\n"), p1afro);
     Output::send<LogLevel::Verbose>(STR("p1air: {}\n"), p1air);
     Output::send<LogLevel::Verbose>(STR("p1blockamnt: {}\n"), p1blockamnt);
+    Output::send<LogLevel::Verbose>(STR("p1cinectr: {}\n"), p1cinectr);
+    Output::send<LogLevel::Verbose>(STR("p1ctr: {}\n"), p1ctr);
     //auto sprnlen = findStringLength(p1spritename);
     Output::send<LogLevel::Verbose>(STR("p1spritename: {}\n"), convertToWide2(p1spritename));
     //auto bbstlen = findStringLength(p1bbstate);
@@ -207,8 +208,8 @@ void SAMMI_update(AREDGameState_Battle *GameState)
     // Output::send<LogLevel::Verbose>(STR("p1datklvlcl: {}\n"), p1datklvlcl);
     // Output::send<LogLevel::Verbose>(STR("p1datklvlgr: {}\n"), p1datklvlgr);
     // Output::send<LogLevel::Verbose>(STR("p1datktyp: {}\n"), p1datktyp);
-    Output::send<LogLevel::Verbose>(STR("p1dchipdmg: {}\n"), p1dchipdmg);
-    Output::send<LogLevel::Verbose>(STR("p1dchpdrate: {}\n"), p1dchpdrate);
+    // Output::send<LogLevel::Verbose>(STR("p1dchipdmg: {}\n"), p1dchipdmg);
+    // Output::send<LogLevel::Verbose>(STR("p1dchpdrate: {}\n"), p1dchpdrate);
     // Output::send<LogLevel::Verbose>(STR("p1dmg: {}\n"), p1dmg);
     // Output::send<LogLevel::Verbose>(STR("p1dhstop: {}\n"), p1dhstop);
     // Output::send<LogLevel::Verbose>(STR("p1dprorate: {}\n"), p1dprorate);
@@ -216,14 +217,14 @@ void SAMMI_update(AREDGameState_Battle *GameState)
     // Output::send<LogLevel::Verbose>(STR("p1dprorato: {}\n"), p1dprorato);
     // Output::send<LogLevel::Verbose>(STR("p1dproratrf: {}\n"), p1dproratrf);
     // Output::send<LogLevel::Verbose>(STR("p1dproratro: {}\n"), p1dproratro);
-    Output::send<LogLevel::Verbose>(STR("p1drisc: {}\n"), p1drisc);
+    // Output::send<LogLevel::Verbose>(STR("p1drisc: {}\n"), p1drisc);
     // Output::send<LogLevel::Verbose>(STR("p1hatklvl: {}\n"), p1hatklvl);
     // Output::send<LogLevel::Verbose>(STR("p1hatklvlcl: {}\n"), p1hatklvlcl);
-    Output::send<LogLevel::Verbose>(STR("p1hatklvlgr: {}\n"), p1hatklvlgr);
-    // Output::send<LogLevel::Verbose>(STR("p1hatktyp: {}\n"), p1hatktyp);
+    // Output::send<LogLevel::Verbose>(STR("p1hatklvlgr: {}\n"), p1hatklvlgr);
+    Output::send<LogLevel::Verbose>(STR("p1hatktyp: {}\n"), p1hatktyp);
     Output::send<LogLevel::Verbose>(STR("p1hchipdmg: {}\n"), p1hchipdmg);
     Output::send<LogLevel::Verbose>(STR("p1hchpdrate: {}\n"), p1hchpdrate);
-    // Output::send<LogLevel::Verbose>(STR("p1hdmg: {}\n"), p1hdmg);
+    Output::send<LogLevel::Verbose>(STR("p1hdmg: {}\n"), p1hdmg);
     // Output::send<LogLevel::Verbose>(STR("p1hhstop: {}\n"), p1hhstop);
     // Output::send<LogLevel::Verbose>(STR("p1hprorate: {}\n"), p1hprorate);
     // Output::send<LogLevel::Verbose>(STR("p1hproratf: {}\n"), p1hproratf);
@@ -233,15 +234,15 @@ void SAMMI_update(AREDGameState_Battle *GameState)
     Output::send<LogLevel::Verbose>(STR("p1hrisc: {}\n"), p1hrisc);
     Output::send<LogLevel::Verbose>(STR("p1hstagger: {}\n"), p1hstagger);
     Output::send<LogLevel::Verbose>(STR("p1hunburst: {}\n"), p1hunburst);
-    Output::send<LogLevel::Verbose>(STR("p1enhitstun: {}\n"), p1enhitstun);
-    Output::send<LogLevel::Verbose>(STR("p1enuntech: {}\n"), p1enuntech);
-    Output::send<LogLevel::Verbose>(STR("p1enwallstick: {}\n"), p1enwallstick);
+    // Output::send<LogLevel::Verbose>(STR("p1enhitstun: {}\n"), p1enhitstun);
+    // Output::send<LogLevel::Verbose>(STR("p1enuntech: {}\n"), p1enuntech);
+    // Output::send<LogLevel::Verbose>(STR("p1enwallstick: {}\n"), p1enwallstick);
     // Output::send<LogLevel::Verbose>(STR("p1edhitstun: {}\n"), p1edhitstun);
     // Output::send<LogLevel::Verbose>(STR("p1eduntech: {}\n"), p1eduntech);
     // Output::send<LogLevel::Verbose>(STR("p1edwallstick: {}\n"), p1edwallstick);
-    Output::send<LogLevel::Verbose>(STR("p1echitstun: {}\n"), p1echitstun);
-    Output::send<LogLevel::Verbose>(STR("p1ecuntech: {}\n"), p1ecuntech);
-    Output::send<LogLevel::Verbose>(STR("p1ecwallstick: {}\n"), p1ecwallstick);
+    // Output::send<LogLevel::Verbose>(STR("p1echitstun: {}\n"), p1echitstun);
+    // Output::send<LogLevel::Verbose>(STR("p1ecuntech: {}\n"), p1ecuntech);
+    // Output::send<LogLevel::Verbose>(STR("p1ecwallstick: {}\n"), p1ecwallstick);
 
     /// player 2 yaaay...
     //<>

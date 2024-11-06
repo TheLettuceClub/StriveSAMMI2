@@ -179,14 +179,14 @@ namespace Settings
       }
       catch (...)
       {
-        //        RC::Output::send<LogLevel::Verbose>(STR("Could not find {}\n"), line);
+        //RC::Output::send<LogLevel::Verbose>(STR("Could not find {}\n"), line);
         continue;
       }
 
       int index = indexById(key);
       if (index == -1)
       {
-        //        RC::Output::send<LogLevel::Verbose>(STR("Could not find {}\n"), line);
+        //RC::Output::send<LogLevel::Verbose>(STR("Could not find {}\n"), line);
         continue;
       }
 

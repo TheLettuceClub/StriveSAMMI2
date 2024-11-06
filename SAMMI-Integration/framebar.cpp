@@ -3,13 +3,13 @@
 #include "Windows.h"
 
 /* Debug Stuff */
-#if 0
+#if 1
 #define DEBUG_PRINT(...) RC::Output::send<LogLevel::Warning>(__VA_ARGS__)
 #else
 #define DEBUG_PRINT(...)
 #endif
-#define ENABLE_PRJT_DEBUG false
-#define ENABLE_STATE_DEBUG false
+#define ENABLE_PRJT_DEBUG true
+#define ENABLE_STATE_DEBUG true
 
 namespace
 {
@@ -101,7 +101,7 @@ bool hasCancelOptions(const asw_player &player)
     if ((move.active_flag & SAF_FLEX_CHAIN && player.can_whiff_cancel()) || (move.active_flag & SAF_CHAIN && player.can_gatling_cancel()))
     {
       auto name = convertToWide(safeRead(datas.moves[idx].get_name()));
-      //      RC::Output::send<LogLevel::Warning>(STR("    whiff: Idx: {}, Name: {}\n"), idx, name);
+      RC::Output::send<LogLevel::Warning>(STR("    whiff: Idx: {}, Name: {}\n"), idx, name);
       return true;
     }
   }
@@ -512,22 +512,22 @@ PlayerState::PlayerState(asw_player &player, asw_player &opp, const PlayerState 
     trunc_time = 1;
   }
 
-  //  if constexpr (ENABLE_STATE_DEBUG) {
-  //    auto format = STR("script:{}, time:{}, sprite:{}, can:{}, stance:{} bstun:{}, hstun:{}, plact:{}, pjact:{}, any:{}, st:{}, cin:{}, hbc:{}, trw:{}, f:{}, c:{}, atk: {}\n");
-  //    std::wstring local_script = convertToWide(player.get_BB_state());
-  //    std::wstring local_sprite = convertToWide(player.get_sprite_name());
-  //    auto nca = normal_canact ? L"Y" : L"N";
-  //    auto sca = stance_canact ? L"Y" : L"N";
-  //    auto bs = block_stunned ? L"Y" : L"N";
-  //    auto hs = hit_stunned ? L"Y" : L"N";
-  //    auto pla = player_active ? L"Y" : L"N";
-  //    auto pja = projectile_active ? L"Y" : L"N";
-  //    auto aja = any_prjt ? L"Y" : L"N";
-  //    auto cin = player.cinematic_counter ? L"Y" : L"N";
-  //    auto flex = player.can_whiff_cancel() ? L"Y" : L"N";
-  //    auto cancel = player.can_gatling_cancel()  ? L"Y" : L"N";
-  //    RC::Output::send<LogLevel::Warning>(format, local_script, time, local_sprite, nca, sca, bs, hs, pla, pja, aja, state_time, cin, player.hitbox_count, player.throw_range, flex, cancel, player.attack_flag);
-  //  }
+   if constexpr (ENABLE_STATE_DEBUG) {
+     auto format = STR("script:{}, time:{}, sprite:{}, can:{}, stance:{} bstun:{}, hstun:{}, plact:{}, pjact:{}, any:{}, st:{}, cin:{}, hbc:{}, trw:{}, f:{}, c:{}, atk: {}\n");
+     std::wstring local_script = convertToWide(player.get_BB_state());
+     std::wstring local_sprite = convertToWide(player.get_sprite_name());
+     auto nca = normal_canact ? L"Y" : L"N";
+     auto sca = stance_canact ? L"Y" : L"N";
+     auto bs = block_stunned ? L"Y" : L"N";
+     auto hs = hit_stunned ? L"Y" : L"N";
+     auto pla = player_active ? L"Y" : L"N";
+     auto pja = projectile_active ? L"Y" : L"N";
+     auto aja = any_prjt ? L"Y" : L"N";
+     auto cin = player.cinematic_counter ? L"Y" : L"N";
+     auto flex = player.can_whiff_cancel() ? L"Y" : L"N";
+     auto cancel = player.can_gatling_cancel()  ? L"Y" : L"N";
+     RC::Output::send<LogLevel::Warning>(format, local_script, time, local_sprite, nca, sca, bs, hs, pla, pja, aja, state_time, cin, player.hitbox_count, player.throw_range, flex, cancel, player.attack_flag);
+   }
 }
 
 // ############################################################

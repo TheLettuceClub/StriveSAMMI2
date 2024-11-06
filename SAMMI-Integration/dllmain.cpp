@@ -136,7 +136,7 @@ public:
     for (unsigned int idx = 0; idx < count; ++idx)
     {
       auto e_type = events->events[idx].type;
-      // if(e_type < 41) RC::Output::send<LogLevel::Warning>(STR("Event {}: {}\n"), idx, (int)e_type);
+      if(e_type < 41) RC::Output::send<LogLevel::Warning>(STR("Event {}: {}\n"), idx, (int)e_type);
       if (e_type == BOM_EVENT_RESET || e_type == BOM_EVENT_DECISION)
       {
         resetting = true;
@@ -466,7 +466,7 @@ void hook_UpdateBattle(AREDGameState_Battle *GameState, float DeltaTime)
   if (!tracker.isUePaused() && game_state.roundActive)
   {
     the_bar.addFrame();
-    SAMMI_update(GameState);
+    //SAMMI_update(GameState);
   }
 }
 
