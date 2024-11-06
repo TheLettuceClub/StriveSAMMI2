@@ -8,8 +8,7 @@ Download the `Standalone.zip` file from releases, and extract the contents into 
 e.g. ```C:\Program Files (x86)\Steam\steamapps\common\GUILTY GEAR STRIVE\RED\Binaries\Win64```
 
 If you have Sevoii's framedata viewer installed **remove it**, as this mod does the same thing but is incompatible for various reasons.
-If you already have some ue4ss mods, you'll probably still want to update the other dlls that I provide, as I'm building agains the latest version and not a specific release.
-Additionally, in that case, make sure to add "SAMMI-Integration : 1" to you Mods.txt in the Mods directory.
+If you already have some ue4ss mods, you'll probably still want to update the other dlls that I provide, as I'm building against the latest version and not a specific release. Additionally, make sure to add "SAMMI-Integration : 1" to you Mods.txt in the Mods directory.
 
 ## TODO:
 - Aquire the correct data from each frame update and parse it into good format.
