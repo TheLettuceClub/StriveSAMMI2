@@ -383,9 +383,7 @@ void hook_MatchStart(AREDGameState_Battle *GameState)
   tracker.reset();
 
   orig_MatchStart(GameState);
-  //check
-  Output::send<LogLevel::Verbose>(STR("Strive Frame Viewer (SAMMI) match start hooked\n"));
-  SAMMI_start(GameState);
+  //SAMMI_start(GameState); //eventually have this register round starts
 }
 void hook_AHUDPostRender(void *hud)
 {
@@ -453,6 +451,7 @@ void hook_UpdateBattle(AREDGameState_Battle *GameState, float DeltaTime)
   if (game_state.resetting)
   {
     the_bar.reset();
+    //some SAMMI stuff goes here!
   }
 
   orig_UpdateBattle(GameState, DeltaTime);
@@ -467,17 +466,18 @@ void hook_UpdateBattle(AREDGameState_Battle *GameState, float DeltaTime)
   if (!tracker.isUePaused() && game_state.roundActive)
   {
     the_bar.addFrame();
+    SAMMI_update(GameState);
   }
 }
 
 /* Mod Definition */
-class StriveFrameData : public CppUserModBase
+class StriveSAMMI : public CppUserModBase
 {
 public:
   PLH::x64Detour *UpdateBattle_Detour;
   PLH::x64Detour *MatchStart_Detour;
 
-  StriveFrameData() : CppUserModBase()
+  StriveSAMMI() : CppUserModBase()
   {
     ModName = STR("SAMMI-Integration");
     ModVersion = STR("0.01");
@@ -492,7 +492,7 @@ public:
     Output::send<LogLevel::Verbose>(STR("Strive Frame Viewer (SAMMI) Started\n"));
   }
 
-  ~StriveFrameData() override {}
+  ~StriveSAMMI() override {}
 
   auto on_update() -> void override {}
 
@@ -522,7 +522,7 @@ extern "C"
 {
   SAMMI_INTEG_API CppUserModBase *start_mod()
   {
-    return new StriveFrameData();
+    return new StriveSAMMI();
   }
 
   SAMMI_INTEG_API void uninstall_mod(CppUserModBase *mod)
