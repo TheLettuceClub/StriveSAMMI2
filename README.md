@@ -29,4 +29,4 @@ I make no guarantees on account standing, game stability, or the mental stabilit
 I advise disabling this mod (as detailed above) and restarting the game before playing online.
 
 ## Compiling from source
-TBD
+TBD but I'm using xmake instead of cmake in accordance with the latest versions of ue4ss.
